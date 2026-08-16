@@ -1,0 +1,1439 @@
+@charset "UTF-8";
+
+/* =============================================================
+   ダミー歯科クリニック / style.css
+   構成：1.リセット 2.変数 3.ベース 4.共通パーツ 5.ブロック
+   設計：BEM／モバイルファースト（min-width 768px・1024px）
+   ============================================================= */
+
+
+/* =============================================================
+   1. リセット
+   ============================================================= */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body,
+h1, h2, h3, h4,
+p,
+figure,
+dl, dd,
+ul, ol {
+    margin: 0;
+    padding: 0;
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    vertical-align: bottom;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+
+/* =============================================================
+   2. CSS変数（テーマカラー・余白）
+   ============================================================= */
+:root {
+    /* テーマカラー：清潔感のある水色 × 白 */
+    --color-primary:        #3fb6d3;
+    --color-primary-dark:   #2b93ad;
+    --color-primary-light:  #e9f7fb;
+    --color-bg:             #ffffff;
+    --color-text:           #333f48;
+    --color-text-muted:     #6b7a83;
+    --color-border:         #dfe8ec;
+    --color-footer-bg:      #1f3a44;
+    --color-footer-text:    #cfe2e9;
+
+    /* フォームのエラー表示用 */
+    --color-error:          #c0392b;
+    --color-error-bg:       #fdf5f5;
+    --color-error-badge-bg: #fdecec;
+
+    /* フォームの入力OK表示用 */
+    --color-success:        #2e8b6f;
+
+    /* 余白スケール（8pxベース） */
+    --space-xs:  8px;
+    --space-sm: 16px;
+    --space-md: 24px;
+    --space-lg: 40px;
+    --space-xl: 64px;
+    --space-2xl: 96px;
+
+    /* レイアウト */
+    --header-height: 70px;
+    --content-width: 1140px;
+    --gutter: var(--space-md);
+
+    /* 装飾 */
+    --radius: 12px;
+    --shadow: 0 4px 16px rgba(31, 58, 68, .08);
+    --shadow-hover: 0 12px 28px rgba(31, 58, 68, .16);
+    --transition: .3s ease;
+
+    /* タイポグラフィ */
+    --font-base: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+
+
+/* =============================================================
+   3. ベース
+   ============================================================= */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    padding-top: var(--header-height); /* 固定ヘッダーの高さ分 */
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-base);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+    line-height: 1.4;
+}
+
+/* キーボード操作時のフォーカス表示 */
+a:focus-visible {
+    outline: 3px solid var(--color-primary-dark);
+    outline-offset: 3px;
+}
+
+
+/* =============================================================
+   4. 共通パーツ
+   ============================================================= */
+
+/* ---- レイアウト用コンテナ ---- */
+.container {
+    width: 100%;
+    max-width: var(--content-width);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+}
+
+/* ---- セクション共通 ---- */
+.section {
+    padding-block: var(--space-xl);
+    /* 固定ヘッダーにアンカーが隠れないように */
+    scroll-margin-top: var(--header-height);
+}
+
+.section--light {
+    background-color: var(--color-primary-light);
+}
+
+.section__title {
+    position: relative;
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.section__title::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 56px;
+    height: 4px;
+    border-radius: 2px;
+    background-color: var(--color-primary);
+    transform: translateX(-50%);
+}
+
+.section__lead {
+    margin-bottom: var(--space-lg);
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+/* セクション末尾の「次のページへ進む」ボタンを中央に置く箱 */
+.section__action {
+    margin-top: var(--space-lg);
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .section {
+        padding-block: var(--space-2xl);
+    }
+
+    .section__title {
+        font-size: 2rem;
+    }
+}
+
+/* ---- スクロールで出現させるアニメーション ---- */
+/* .fade-up は js/main.js が付与する。
+   JS無効時やアニメを控える設定のときはクラス自体が付かず、最初から表示されたままになる */
+.fade-up {
+    opacity: 0;
+}
+
+/* transitionではなくanimationで書くことで、
+   各パーツが元から持っているhover用のtransitionを上書きしないようにしている */
+.fade-up.is-visible {
+    animation: fade-up .6s ease both;
+}
+
+/* 同じ親の中の並び順に応じて、少しずつ遅らせて出す */
+.fade-up--delay-1.is-visible { animation-delay: .1s; }
+.fade-up--delay-2.is-visible { animation-delay: .2s; }
+.fade-up--delay-3.is-visible { animation-delay: .3s; }
+
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* JS側でも判定しているが、念のためCSSでも無効化しておく */
+@media (prefers-reduced-motion: reduce) {
+    .fade-up,
+    .fade-up.is-visible {
+        opacity: 1;
+        animation: none;
+    }
+}
+
+/* ---- ボタン ---- */
+.button {
+    display: inline-block;
+    padding: var(--space-sm) var(--space-lg);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color var(--transition),
+                border-color var(--transition),
+                color var(--transition),
+                box-shadow var(--transition);
+}
+
+.button--primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    box-shadow: var(--shadow);
+}
+
+.button--primary:hover {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    box-shadow: var(--shadow-hover);
+}
+
+.button--outline {
+    background-color: transparent;
+    border-color: var(--color-primary);
+    color: var(--color-primary-dark);
+}
+
+.button--outline:hover {
+    background-color: var(--color-primary);
+    color: #fff;
+}
+
+.button--lg {
+    padding: var(--space-md) var(--space-xl);
+    font-size: 1.0625rem;
+}
+
+
+/* =============================================================
+   5-1. ヘッダー（固定70px）
+   ============================================================= */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: 100%;
+    height: var(--header-height);
+    background-color: rgba(255, 255, 255, .96);
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color var(--transition),
+                border-color var(--transition),
+                box-shadow var(--transition);
+}
+
+/* スクロール後：背景を不透明にして影を落とす */
+/* 高さ・余白は変えない（変えるとレイアウトがガタつくため） */
+.header.is-scrolled {
+    background-color: #fff;
+    border-bottom-color: transparent;
+    box-shadow: var(--shadow);
+}
+
+.header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.header__logo {
+    display: inline-flex;
+    align-items: center;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    transition: opacity var(--transition);
+}
+
+.header__logo:hover {
+    opacity: .7;
+}
+
+.header__logo-img {
+    width: auto;
+    height: 36px;
+}
+
+/* ---- ナビ（SPでは右からスライドインするドロワー） ---- */
+.header__nav {
+    position: fixed;
+    top: var(--header-height);
+    right: 0;
+    width: min(80%, 320px);
+    height: calc(100vh - var(--header-height));
+    padding: var(--space-lg) var(--space-md);
+    overflow-y: auto;
+    background-color: var(--color-bg);
+    border-left: 1px solid var(--color-border);
+    box-shadow: var(--shadow);
+    /* 画面外へ退避。visibility も切ってキーボードフォーカスを届かせない */
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform var(--transition), visibility var(--transition);
+}
+
+.header__nav.is-open {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+.header__menu {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+/* ドロワーを開いている間は背面をスクロールさせない */
+body.is-nav-open {
+    overflow: hidden;
+}
+
+.header__link {
+    position: relative;
+    display: inline-block;
+    padding-block: var(--space-xs);
+    font-weight: 500;
+    transition: color var(--transition);
+}
+
+.header__link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-primary);
+    transition: width var(--transition);
+}
+
+.header__link:hover {
+    color: var(--color-primary-dark);
+}
+
+.header__link:hover::after {
+    width: 100%;
+}
+
+/* 現在開いているページ（includes/header.php が .is-current を付ける） */
+/* ホバー時の下線を最初から出したうえで、太字と濃い色で他の項目と区別する */
+.header__link.is-current {
+    color: var(--color-primary-dark);
+    font-weight: 700;
+}
+
+.header__link.is-current::after {
+    width: 100%;
+    height: 3px;
+    background-color: var(--color-primary-dark);
+}
+
+/* ---- ハンバーガー（SP専用） ---- */
+.header__hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 28px;
+    height: 20px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.header__hamburger-line {
+    display: block;
+    width: 100%;
+    height: 2px;
+    border-radius: 1px;
+    background-color: var(--color-primary-dark);
+    transition: transform var(--transition), opacity var(--transition);
+}
+
+/* 開いている間は3本線を × に変形（1本目/3本目を中央へ寄せて回転、2本目は消す） */
+.header__hamburger.is-open .header__hamburger-line:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+}
+
+.header__hamburger.is-open .header__hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.header__hamburger.is-open .header__hamburger-line:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+}
+
+@media (min-width: 768px) {
+    /* PCではドロワーを解除して通常の横並びナビに戻す */
+    .header__nav {
+        position: static;
+        width: auto;
+        height: auto;
+        padding: 0;
+        overflow: visible;
+        margin-left: auto;
+        background: none;
+        border: none;
+        box-shadow: none;
+        transform: none;
+        visibility: visible;
+    }
+
+    .header__menu {
+        flex-direction: row;
+        gap: var(--space-lg);
+    }
+
+    .header__hamburger {
+        display: none;
+    }
+
+    /* SPで開いたままPC幅にした場合の保険 */
+    body.is-nav-open {
+        overflow: visible;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .header {
+        transition: none;
+    }
+}
+
+
+/* =============================================================
+   5-2. ヒーロー
+   ============================================================= */
+.hero {
+    /* 画像が未配置でも成立するように、下地の水色グラデーションを重ねる */
+    background-color: var(--color-primary-light);
+    background-image:
+        linear-gradient(rgba(20, 60, 75, .45), rgba(20, 60, 75, .45)),
+        url("../img/hero.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: #fff;
+    text-align: center;
+}
+
+.hero__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 480px;
+    padding-block: var(--space-xl);
+}
+
+.hero__eyebrow {
+    margin-bottom: var(--space-sm);
+    font-size: .8125rem;
+    font-weight: 500;
+    letter-spacing: .2em;
+}
+
+.hero__title {
+    margin-bottom: var(--space-md);
+    font-size: clamp(1.75rem, 5vw, 3rem);
+    font-weight: 700;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, .35);
+}
+
+.hero__lead {
+    margin-bottom: var(--space-lg);
+    font-size: clamp(.9375rem, 2vw, 1.0625rem);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, .35);
+}
+
+@media (min-width: 768px) {
+    .hero__inner {
+        min-height: 560px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .hero__inner {
+        min-height: 640px;
+    }
+}
+
+
+/* =============================================================
+   5-3. 診療内容（タブ切替＋カード）
+   ============================================================= */
+
+/* ---- タブ ---- */
+/* JSが .is-tabbed を付けてはじめてタブUIになる。
+   付かない（JS無効）場合はタブを隠し、全パネルを縦に並べたまま読めるようにする */
+.services__tablist {
+    display: none;
+}
+
+.services__tabs.is-tabbed .services__tablist {
+    /* 等幅3列。SPでも横スクロールなしで1行に収める */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.services__tab {
+    position: relative;
+    padding: var(--space-xs) 4px var(--space-sm);
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font: inherit;
+    font-size: .875rem;
+    font-weight: 700;
+    line-height: 1.5;   /* 狭い画面で2行になっても詰まって見えないように */
+    cursor: pointer;
+    transition: color var(--transition), background-color var(--transition);
+}
+
+/* アクティブタブの下線（.section__title::after と同じ考え方） */
+.services__tab::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1px;   /* tablist の border-bottom に重ねる */
+    width: 100%;
+    height: 3px;
+    border-radius: 2px;
+    background-color: var(--color-primary);
+    transform: scaleX(0);
+    transition: transform var(--transition);
+}
+
+.services__tab:hover {
+    color: var(--color-primary-dark);
+    background-color: var(--color-primary-light);
+}
+
+.services__tab:focus-visible {
+    outline: 3px solid var(--color-primary-dark);
+    outline-offset: -3px;
+}
+
+.services__tab.is-active {
+    color: var(--color-primary-dark);
+}
+
+.services__tab.is-active::after {
+    transform: scaleX(1);
+}
+
+/* ---- パネル ---- */
+.services__tabs.is-tabbed .services__panel {
+    display: none;
+}
+
+.services__tabs.is-tabbed .services__panel.is-active {
+    display: block;
+    animation: service-panel-in .3s ease;
+}
+
+/* JS無効時にパネルが続けて並ぶときの間隔 */
+.services__panel + .services__panel {
+    margin-top: var(--space-md);
+}
+
+.services__panel:focus-visible {
+    outline: 3px solid var(--color-primary-dark);
+    outline-offset: 4px;
+}
+
+@keyframes service-panel-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---- カード ---- */
+.services__list {
+    display: grid;
+    grid-template-columns: 1fr;          /* SP：1列 */
+    gap: var(--space-md);
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: transform var(--transition),
+                box-shadow var(--transition),
+                border-color var(--transition);
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-hover);
+}
+
+.card__thumb {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background-color: var(--color-primary-light);
+}
+
+.card__body {
+    flex: 1;
+    padding: var(--space-md);
+}
+
+.card__title {
+    position: relative;
+    margin-bottom: var(--space-xs);
+    padding-left: var(--space-sm);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.card__title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: .35em;
+    width: 5px;
+    height: 1em;
+    border-radius: 3px;
+    background-color: var(--color-primary);
+}
+
+.card__text {
+    font-size: .9375rem;
+    color: var(--color-text-muted);
+}
+
+@media (min-width: 768px) {
+    /* 幅に余裕が出たら等幅をやめて、文字幅どおりの中央寄せに戻す */
+    .services__tabs.is-tabbed .services__tablist {
+        display: flex;
+        justify-content: center;
+        gap: var(--space-xs);
+    }
+
+    .services__tab {
+        padding-inline: var(--space-lg);
+        font-size: 1rem;
+        white-space: nowrap;
+    }
+
+    .services__list {
+        grid-template-columns: repeat(2, 1fr);   /* タブレット以上：2列 */
+        gap: var(--space-lg);
+    }
+}
+
+@media (min-width: 1024px) {
+    /* 1パネル2枚なので、広い画面では間延びしないよう幅を抑える */
+    .services__list {
+        max-width: 880px;
+        margin-inline: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .services__tab,
+    .services__tab::after {
+        transition: none;
+    }
+
+    .services__tabs.is-tabbed .services__panel.is-active {
+        animation: none;
+    }
+}
+
+
+/* =============================================================
+   5-4. クリニック概要（dl 2列）
+   ============================================================= */
+.overview__list {
+    max-width: 840px;
+    margin-inline: auto;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.overview__term {
+    padding: var(--space-sm) var(--space-md) 0;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.overview__desc {
+    padding: 0 var(--space-md) var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.overview__desc:last-child {
+    border-bottom: none;
+}
+
+@media (min-width: 768px) {
+    .overview__list {
+        display: grid;
+        grid-template-columns: 200px 1fr;   /* 項目 / 内容の2列 */
+    }
+
+    .overview__term {
+        padding: var(--space-md);
+        background-color: rgba(255, 255, 255, .6);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .overview__desc {
+        padding: var(--space-md);
+    }
+
+    /* 2列時は最後の1組（dt/dd）の下線を消す */
+    .overview__term:nth-last-of-type(1) {
+        border-bottom: none;
+    }
+}
+
+
+/* =============================================================
+   5-5. よくある質問（アコーディオン）
+   ============================================================= */
+.faq__list {
+    max-width: 840px;
+    margin-inline: auto;
+}
+
+.faq__item {
+    margin-bottom: var(--space-sm);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.faq__item:last-child {
+    margin-bottom: 0;
+}
+
+.faq__item.is-open {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow);
+}
+
+/* ---- 質問（クリックできるボタン） ---- */
+.faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    width: 100%;
+    padding: var(--space-md);
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 700;
+    line-height: 1.6;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color var(--transition), color var(--transition);
+}
+
+.faq__question:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-dark);
+}
+
+.faq__question:focus-visible {
+    outline: 3px solid var(--color-primary-dark);
+    outline-offset: -3px;
+}
+
+/* 質問文の前に「Q.」を付ける（装飾なのでCSSで） */
+.faq__question-text::before {
+    content: "Q.";
+    margin-right: .5em;
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.faq__icon {
+    flex-shrink: 0;   /* 質問文が長くても矢印がつぶれないように */
+    color: var(--color-primary-dark);
+    transition: transform var(--transition);
+}
+
+.faq__item.is-open .faq__icon {
+    transform: rotate(180deg);
+}
+
+/* ---- 回答（開閉する部分） ---- */
+/* 高さのアニメ用に max-height を持つ外側と、paddingを持つ内側を分離している */
+.faq__answer {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height var(--transition), opacity var(--transition);
+}
+
+.faq__item.is-open .faq__answer {
+    opacity: 1;   /* max-height は JS が実測値（scrollHeight）で設定する */
+}
+
+.faq__answer-inner {
+    padding: 0 var(--space-md) var(--space-md);
+    color: var(--color-text-muted);
+    font-size: .9375rem;
+}
+
+.faq__answer-inner::before {
+    content: "A.";
+    margin-right: .5em;
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .faq__answer,
+    .faq__icon {
+        transition: none;
+    }
+}
+
+
+/* =============================================================
+   5-6. お問い合わせ導線
+   ============================================================= */
+.contact {
+    text-align: center;
+}
+
+.contact__methods {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+    max-width: 840px;
+    margin-inline: auto;
+    margin-bottom: var(--space-lg);
+}
+
+.contact__method {
+    padding: var(--space-md);
+    background-color: var(--color-primary-light);
+    border-radius: var(--radius);
+    transition: box-shadow var(--transition);
+}
+
+.contact__method:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+.contact__label {
+    margin-bottom: var(--space-xs);
+    font-size: .875rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+}
+
+/* 見出し横のアイコン（装飾なので aria-hidden="true" 前提） */
+.contact__icon {
+    margin-right: .5em;
+    color: var(--color-primary-dark);
+}
+
+.contact__link {
+    display: inline-block;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    word-break: break-all;
+    transition: color var(--transition), opacity var(--transition);
+}
+
+.contact__link:hover {
+    color: var(--color-primary);
+    opacity: .85;
+}
+
+.contact__link--tel {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+    letter-spacing: .02em;
+}
+
+.contact__link--mail {
+    font-size: clamp(1rem, 3.5vw, 1.25rem);
+}
+
+.contact__note {
+    margin-top: var(--space-xs);
+    font-size: .8125rem;
+    color: var(--color-text-muted);
+}
+
+@media (min-width: 768px) {
+    .contact__methods {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-lg);
+    }
+
+    .contact__method {
+        padding: var(--space-lg);
+    }
+}
+
+
+/* =============================================================
+   5-7. お問い合わせフォーム
+   ============================================================= */
+.contact__form-title {
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-md);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.form {
+    max-width: 640px;
+    margin-inline: auto;
+    text-align: left;   /* .contact が中央揃えなので明示的に戻す */
+}
+
+.form__note {
+    margin-bottom: var(--space-md);
+    font-size: .8125rem;
+    color: var(--color-text-muted);
+}
+
+.form__group {
+    margin-bottom: var(--space-md);
+}
+
+.form__label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    font-size: .9375rem;
+    font-weight: 700;
+}
+
+/* ---- 必須／任意バッジ ---- */
+.form__required,
+.form__optional {
+    display: inline-block;
+    margin-left: .5em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: .6875rem;
+    font-weight: 700;
+    line-height: 1.6;
+    vertical-align: middle;
+}
+
+.form__required {
+    background-color: var(--color-error-badge-bg);
+    color: var(--color-error);
+}
+
+.form__optional {
+    background-color: var(--color-border);
+    color: var(--color-text-muted);
+}
+
+/* ---- 入力欄 ---- */
+.form__input,
+.form__textarea {
+    display: block;
+    width: 100%;
+    padding: var(--space-xs) var(--space-sm);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    color: var(--color-text);
+    font: inherit;
+    transition: border-color var(--transition),
+                background-color var(--transition),
+                box-shadow var(--transition);
+}
+
+.form__textarea {
+    resize: vertical;   /* 横幅を崩さないよう縦方向のみリサイズ可 */
+    line-height: 1.8;
+}
+
+.form__input::placeholder,
+.form__textarea::placeholder {
+    color: #a9b6bd;
+}
+
+.form__input:focus,
+.form__textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(63, 182, 211, .25);
+}
+
+/* ---- 入力OK状態（緑枠＋チェックマーク） ---- */
+/* チェックマークは背景画像。要素を増やさずに済み、読み上げにも余計な情報が入らない */
+.form__input.is-valid,
+.form__textarea.is-valid {
+    border-color: var(--color-success);
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232e8b6f' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 13 9 18 20 6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 18px;
+}
+
+.form__textarea.is-valid {
+    /* 複数行なので、中央ではなく右上に固定する */
+    background-position: right 12px top 10px;
+}
+
+.form__input.is-valid:focus,
+.form__textarea.is-valid:focus {
+    border-color: var(--color-success);
+    box-shadow: 0 0 0 3px rgba(46, 139, 111, .2);
+}
+
+/* ---- エラー状態（赤枠＋赤字） ---- */
+.form__input.is-error,
+.form__textarea.is-error {
+    background-color: var(--color-error-bg);
+    border-color: var(--color-error);
+}
+
+.form__input.is-error:focus,
+.form__textarea.is-error:focus {
+    box-shadow: 0 0 0 3px rgba(192, 57, 43, .2);
+}
+
+/* ---- 文字数カウンタ ---- */
+.form__counter {
+    margin-top: 4px;
+    color: var(--color-text-muted);
+    font-size: .8125rem;
+    line-height: 1.6;
+    text-align: right;
+    font-variant-numeric: tabular-nums;   /* 桁が変わっても幅が揺れないように */
+}
+
+.form__counter.is-error {
+    color: var(--color-error);
+    font-weight: 700;
+}
+
+.form__error {
+    margin-top: 4px;
+    color: var(--color-error);
+    font-size: .8125rem;
+    line-height: 1.6;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity var(--transition), transform var(--transition);
+}
+
+.form__error.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ---- 送信前の確認ステップ ---- */
+/* 表示の切り替えは hidden 属性で js/main.js が行う */
+.form__fields,
+.form__confirm {
+    /* 固定ヘッダーに隠れない位置までスクロールさせる */
+    scroll-margin-top: calc(var(--header-height) + var(--space-md));
+}
+
+.form__confirm {
+    padding: var(--space-md);
+    background-color: var(--color-primary-light);
+    border-radius: var(--radius);
+}
+
+.form__confirm-title {
+    margin-bottom: var(--space-xs);
+    font-size: 1.0625rem;
+    font-weight: 700;
+}
+
+.form__confirm-note {
+    margin-bottom: var(--space-md);
+    font-size: .875rem;
+    color: var(--color-text-muted);
+}
+
+.form__confirm-list {
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.form__confirm-term {
+    padding: var(--space-sm) var(--space-md) 0;
+    font-size: .8125rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.form__confirm-desc {
+    padding: 0 var(--space-md) var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+    /* 入力どおりの改行で見せる。<br>を組み立てないのでXSSの心配がない */
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.form__confirm-desc:last-child {
+    border-bottom: none;
+}
+
+/* 未入力の任意項目 */
+.form__confirm-desc--empty {
+    color: var(--color-text-muted);
+}
+
+.form__actions {
+    display: flex;
+    flex-direction: column;   /* SPは縦積み（ボタンは横幅いっぱい） */
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+}
+
+@media (min-width: 768px) {
+    .form__confirm {
+        padding: var(--space-lg);
+    }
+
+    .form__actions {
+        flex-direction: row;
+        justify-content: center;
+    }
+}
+
+/* ---- 送信ボタン・結果メッセージ ---- */
+.form__submit {
+    display: block;
+    margin-top: var(--space-lg);
+    margin-inline: auto;
+}
+
+.form__result {
+    margin-top: var(--space-md);
+    font-weight: 700;
+    text-align: center;
+    color: var(--color-primary-dark);
+}
+
+.form__result.is-error {
+    color: var(--color-error);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .form__error {
+        transition: none;
+    }
+}
+
+
+/* =============================================================
+   5-8. トップへ戻るボタン
+   ============================================================= */
+.to-top {
+    position: fixed;
+    right: var(--space-sm);
+    bottom: var(--space-sm);
+    z-index: 90;   /* ヘッダー（100）より下に重ねる */
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    background-color: var(--color-primary);
+    border: none;
+    border-radius: 50%;
+    box-shadow: var(--shadow);
+    color: #fff;
+    font-size: 1.125rem;
+    cursor: pointer;
+    /* 既定は非表示。visibility も切ってキーボードフォーカスを届かせない */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: opacity var(--transition),
+                visibility var(--transition),
+                transform var(--transition),
+                background-color var(--transition),
+                box-shadow var(--transition);
+}
+
+.to-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.to-top:hover {
+    background-color: var(--color-primary-dark);
+    box-shadow: var(--shadow-hover);
+}
+
+.to-top:focus-visible {
+    outline: 3px solid var(--color-primary-dark);
+    outline-offset: 3px;
+}
+
+@media (min-width: 768px) {
+    .to-top {
+        right: var(--space-md);
+        bottom: var(--space-md);
+        width: 56px;
+        height: 56px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .to-top {
+        transition: none;
+    }
+}
+
+
+/* =============================================================
+   5-9. フッター（暗背景）
+   ============================================================= */
+.footer {
+    padding-block: var(--space-lg);
+    background-color: var(--color-footer-bg);
+    color: var(--color-footer-text);
+    text-align: center;   /* SPは中央揃え。768px以上で左揃えに切り替え */
+}
+
+/* ---- 多段組レイアウト（SP:1列 → タブレット:2列 → PC:3列） ---- */
+.footer__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+}
+
+.footer__heading {
+    margin-bottom: var(--space-sm);
+    font-size: .8125rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: #fff;
+}
+
+/* ---- 1列目：会社情報 ---- */
+.footer__name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.footer__address {
+    margin-top: var(--space-xs);
+    font-size: .875rem;
+}
+
+.footer__info {
+    font-size: .875rem;
+}
+
+/* 会社情報の行頭アイコン（装飾なので aria-hidden="true" 前提） */
+.footer__icon {
+    width: 1.25em;
+    margin-right: .4em;
+    color: var(--color-primary);
+    text-align: center;
+}
+
+/* ---- 2列目：サイトマップ ---- */
+.footer__menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.footer__link {
+    position: relative;
+    display: inline-block;
+    padding-block: 2px;
+    font-size: .875rem;
+    transition: color var(--transition);
+}
+
+.footer__link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 1px;
+    background-color: currentColor;
+    transition: width var(--transition);
+}
+
+.footer__link:hover {
+    color: #fff;
+}
+
+.footer__link:hover::after {
+    width: 100%;
+}
+
+/* ---- 3列目：SNS ---- */
+.footer__sns {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-sm);
+}
+
+.footer__sns-link {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: 50%;
+    transition: background-color var(--transition),
+                border-color var(--transition),
+                color var(--transition);
+}
+
+.footer__sns-link:hover {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+
+.footer__sns-icon {
+    font-size: 1.125rem;
+    line-height: 1;   /* 親のcolorを継承するのでhoverで一緒に色が変わる */
+}
+
+/* ---- コピーライト ---- */
+.footer__bottom {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid rgba(255, 255, 255, .15);
+    text-align: center;
+}
+
+.footer__copyright {
+    font-size: .75rem;
+}
+
+@media (min-width: 768px) {
+    .footer {
+        text-align: left;
+    }
+
+    .footer__inner {
+        grid-template-columns: repeat(2, 1fr);
+        column-gap: var(--space-xl);
+    }
+
+    /* タブレットではSNSを2列ぶち抜きで下段に */
+    .footer__col--sns {
+        grid-column: 1 / -1;
+    }
+
+    .footer__menu {
+        align-items: flex-start;
+    }
+
+    .footer__sns {
+        justify-content: flex-start;
+    }
+}
+
+@media (min-width: 1024px) {
+    .footer__inner {
+        grid-template-columns: 2fr 1fr 1fr;   /* 会社情報 / サイトマップ / SNS */
+    }
+
+    .footer__col--sns {
+        grid-column: auto;
+    }
+}
