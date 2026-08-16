@@ -37,7 +37,7 @@ $nav_items = [
     ['href' => 'index.php',          'label' => 'ホーム',       'current' => ['index.php']],
     ['href' => 'index.php#services', 'label' => '診療内容',     'current' => []],
     ['href' => 'about.php',          'label' => '会社概要',     'current' => ['about.php']],
-    ['href' => 'contact.php',        'label' => 'お問い合わせ', 'current' => ['contact.php', 'confirm.php', 'thanks.php']],
+    ['href' => 'contact.php',        'label' => 'コンタクト', 'current' => ['contact.php', 'confirm.php', 'thanks.php']],
 ];
 ?>
 <!DOCTYPE html>
